@@ -1,20 +1,15 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-const secrets = require('../config/secrets.js');
+const tokenService = require("./token-service");
 
 module.exports = (req, res, next) => {
-  const token = req.headers.authorization;
+  const token = tokenService.verifyToken(req.headers.authorization);
 
+  console.log("token", token);
   if (token) {
-    jwt.verify(token, secrets.jwtSecret, (err, decodedToken) => {
-      if (err) {
-        res.status(401).json({ you: "can't touch this!" });
-      } else {
-        req.decodedJwt = decodedToken;
-        next();
-      }
-    });
+    req.decodedJwt = token;
+    next();
   } else {
-    res.status(401).json({ you: 'shall not pass!' });
+    res.status(401).json({ you: "shall not pass!" });
   }
 };
